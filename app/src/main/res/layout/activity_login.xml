@@ -53,7 +53,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:background="#79a209df"
+        android:background="#E91E63"
         android:text="Login"
         android:textColor="#FFFFFF" />
 

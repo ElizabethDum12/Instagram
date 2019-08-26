@@ -1,10 +1,13 @@
 package com.example.instagram;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
 import android.app.DownloadManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,10 +18,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -62,16 +67,20 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String description =etDescription.getText().toString();
                 ParseUser user = ParseUser.getCurrentUser();
-                savePost(description , user);
+                if (photoFile == null|| ivPostImage.getDrawable() == null) {
+                    Log.e(TAG, "no photo to submit ");
+                    Toast.makeText(MainActivity.this, "There's no photo!", Toast.LENGTH_SHORT ).show();
+                    return; }
+                savePost(description , user, photoFile);
             }
         });
     }
 
-    private void savePost(String description , ParseUser parseUser){
+    private void savePost(String description, ParseUser parseUser, File photoFile){
         Post post = new Post();
         post.setDesciption(description);
         post.setUser(parseUser);
-        // post.setImage();
+        post.setImage(new ParseFile(photoFile));
         post.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -82,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 Log.d(TAG, "SUCCESS!!");
                 etDescription.setText("");
+                ivPostImage.setImageResource(0);
             }
         });
     }
@@ -104,6 +114,21 @@ public class MainActivity extends AppCompatActivity {
         if (intent.resolveActivity(getPackageManager()) != null) {
             // Start the image capture intent to take photo
             startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                // by this point we have the camera photo on disk
+                Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+                // RESIZE BITMAP, see section below
+                // Load the taken image into a preview
+                ivPostImage.setImageBitmap(takenImage);
+            } else { // Result was a failure
+                Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -138,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 for (int i = 0; i < posts.size(); i++) {
                     Post post = posts.get(i);
-                    Log.d(TAG, "Post : " + posts.get(i).getDesciption() + "usename: " + posts.get(i).getUser().getUsername());
+                    Log.d(TAG, "Post : " + posts.get(i).getDesciption() + "username: " + posts.get(i).getUser().getUsername());
                 }
             }
         });
