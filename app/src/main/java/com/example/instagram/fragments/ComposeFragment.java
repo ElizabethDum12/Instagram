@@ -20,8 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-
-import com.example.instagram.MainActivity;
 import com.example.instagram.Post;
 import com.example.instagram.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -39,19 +37,14 @@ import static android.app.Activity.RESULT_OK;
 
 public class ComposeFragment extends Fragment {
     private final String TAG = "ComposeFragment";
-
     private EditText etDescription;
     private Button btnCaptureImage;
     private ImageView ivPostImage;
     private Button btnSubmit;
 
-
-
     public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1034;
     public String photoFileName = "photo.jpg";
     private File photoFile;
-
-
 
     // The onCreateView method is called when Fragment should create its View object hierarchy,
     // either dynamically or via XML layout inflation.
@@ -100,7 +93,7 @@ public class ComposeFragment extends Fragment {
         // Create a File reference to access to future access
         photoFile = getPhotoFileUri(photoFileName);
 
-        // wrap File object into a content provider
+         // wrap File object into a content provider
         // required for API >= 24
         // See https://guides.codepath.com/android/Sharing-Content-with-Intents#sharing-files-with-api-24-or-higher
         Uri fileProvider = FileProvider.getUriForFile(getContext(), "com.codepath.fileprovider", photoFile);
@@ -167,25 +160,6 @@ public class ComposeFragment extends Fragment {
         }
     }
 
-    private void queryPosts() {
-        final ParseQuery<Post> postQuery = new ParseQuery<Post>(Post.class);
-        postQuery.include(Post.KEY_USER);
-        postQuery.findInBackground(new FindCallback<Post>() {
-            @Override
-            public void done(List<Post> posts, ParseException e) {
-                if (e != null) {
-                    Log.d(TAG, "error with query");
-                    e.printStackTrace();
-                    return;
-                }
-                for (int i = 0; i < posts.size(); i++) {
-                    Post post = posts.get(i);
-                    Log.d(TAG, "Post : " + posts.get(i).getDesciption() + "username: " + posts.get(i).getUser().getUsername());
-                }
-            }
-        });
-
-    }
 }
 
 
